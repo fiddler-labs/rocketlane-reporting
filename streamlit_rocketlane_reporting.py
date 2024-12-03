@@ -2,12 +2,14 @@ import streamlit as st
 import pandas as pd
 import requests
 import json
+import os
 
+RL_API_KEY = os.environ.get('RL_API_KEY')
 RL_API_URL = 'https://api.rocketlane.com/api/1.0'
 
 HEADERS = {
     "accept": "application/json",
-    "api-key": "rl-e360d1a8-9cfd-45ed-bb22-a0628b37065b"
+    "api-key": RL_API_KEY
 }
 
 # Parse URL query parameters to determine which "page" to render
