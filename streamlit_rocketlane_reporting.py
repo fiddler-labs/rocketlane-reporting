@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import json
 import os
+from datetime import date, datetime
 
 RL_API_KEY = os.environ.get('RL_API_KEY')
 RL_API_URL = 'https://api.rocketlane.com/api/1.0'
@@ -24,7 +25,10 @@ def call_rl_api(uri) -> pd.DataFrame:
     print(url)
     response = requests.get(url, headers=HEADERS)
     tasks = json.loads(response.text)
-    df = pd.json_normalize(tasks['data'])
+    if 'data' in tasks:
+        df = pd.json_normalize(tasks['data'])
+    else:
+        df = pd.json_normalize(tasks)
     return df
 
 
@@ -36,6 +40,7 @@ def render_html_table(df, page):
     table {
         width: 100%;
         border-collapse: collapse;
+        text-align: left;
     }
     th, td {
         padding: 8px;
@@ -67,37 +72,91 @@ def render_html_table(df, page):
     html_table = df.to_html(escape=False, index=False)
     return html_table + css
 
-
+st.set_page_config(page_title="Fiddler RocketLane Time Reporting",layout='wide')
+st.markdown("""
+    <style>
+    .main {
+        text-align: left;
+        justify-content: flex-start;
+        padding-left: 10px; /* Adjust padding as needed */
+        padding-right: 10px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 
 # Conditional rendering based on the page parameter
 if page == "billable_report" and project_id:
+
+    # Get the current date and time
+    now = datetime.now()
+
+    # Create a new date object for the beginning of the month
+    start_of_month = date(now.year, now.month, 1)
+    end_of_month = date(now.year, now.month, 30)
+
+    # Date range input
+    val = st.date_input(
+        "Select a date range:",
+        #value=(date(2023, 1, 1), date(2023, 12, 31))  # Default date range
+        value=(start_of_month, end_of_month)  # Default date range
+    )
+    try:
+        start_date, end_date = val
+    except ValueError:
+        st.error("You must pick a start and end date")
+        st.stop() 
+
+    # Billable Hours input
+    selected_hours = st.selectbox(
+        "Hours:",  # Label for the dropdown
+        ["All", "Billable", "Not Billable"]  # List of values
+    )
+
+    str_start_date = start_date.strftime("%Y-%m-%d")
+    str_end_date = end_date.strftime("%Y-%m-%d")
+
+    df_project = call_rl_api(f'projects/{project_id}')
+    projectName = df_project.iloc[0]['projectName']
+
+    time_entry_uri = f'time-entries?project.eq={project_id}&sortBy=date&sortOrder=ASC&date.ge={str_start_date}&date.le={str_end_date}'
     
-    df_report = call_rl_api(f'time-entries?project.eq={project_id}&sortBy=billable&billable.eq=true')
-    projectName = df_report.iloc[0][5]
-    # Billable Report Page
+    if selected_hours == "Billable":
+        time_entry_uri = time_entry_uri + '&billable.eq=true'
+    elif selected_hours == "Not Billable":
+        time_entry_uri = time_entry_uri + '&billable.eq=false'
+
+    df_report = call_rl_api(time_entry_uri)
+     
+     # Billable Report Page
     st.title(f"Billable Report for {projectName}")
     st.write(f"Generating billable report for {projectName}...")
     
-    #st.subheader("Original DataFrame")
-    #st.write(df_report)
+    if not df_report.empty:
+        totalMins = df_report['minutes'].sum()
+        totalHours = totalMins/60
 
-    st.subheader("Select Columns to Display")
-    selected_columns = st.multiselect(
-        "Select columns to include in the table:",
-        options=df_report.columns.tolist(),
-        #default=df_report.columns.tolist()  # By default, select all columns
-        default=['project.projectName','task.taskName','projectPhase.phaseName','user.firstName','user.lastName','user.emailId','date','minutes','createdAt','billable']
-    )
+        st.markdown('Total Hours: ' + str(totalHours))
+        st.markdown('Total Minutes: ' + str(totalMins))
+        st.subheader("Select Columns to Display")
+        selected_columns = st.multiselect(
+            "Select columns to include in the table:",
+            options=df_report.columns.tolist(),
+            #default=df_report.columns.tolist()  # By default, select all columns
+            default=['project.projectName','task.taskName','projectPhase.phaseName','user.firstName','user.lastName','user.emailId','date','minutes','createdAt','billable']
+        )
 
-    filtered_df = df_report[selected_columns]
+        df_report['createdAt'] = pd.to_datetime(df_report['createdAt'], unit='ms').dt.strftime('%Y-%m-%d')
+        filtered_df = df_report[selected_columns]
 
-    # Display dataframe as HTML table
-    html_table = render_html_table(filtered_df, page)
-    st.markdown(html_table, unsafe_allow_html=True)
-    
-    # Back button to return to the main page
-    st.markdown('[Go back to main page](?page=main)', unsafe_allow_html=True)
+        # Display dataframe as HTML table
+        html_table = render_html_table(filtered_df, page)
+        st.markdown(html_table, unsafe_allow_html=True)
+        
+        # Back button to return to the main page
+        st.markdown('[Go back to main page](?page=main)', unsafe_allow_html=True)
+    else:
+        st.markdown('No records in report.')
     
 else:
     # Example DataFrame
