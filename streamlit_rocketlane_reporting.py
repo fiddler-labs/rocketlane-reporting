@@ -119,7 +119,7 @@ if page == "billable_report" and project_id:
     df_project = call_rl_api(f'projects/{project_id}')
     projectName = df_project.iloc[0]['projectName']
 
-    time_entry_uri = f'time-entries?project.eq={project_id}&sortBy=date&sortOrder=ASC&date.ge={str_start_date}&date.le={str_end_date}'
+    time_entry_uri = f'time-entries?project.eq={project_id}&includeFields=status,sourceType&sortBy=date&sortOrder=ASC&date.ge={str_start_date}&date.le={str_end_date}'
     
     if selected_hours == "Billable":
         time_entry_uri = time_entry_uri + '&billable.eq=true'
@@ -142,8 +142,8 @@ if page == "billable_report" and project_id:
         selected_columns = st.multiselect(
             "Select columns to include in the table:",
             options=df_report.columns.tolist(),
-            #default=df_report.columns.tolist()  # By default, select all columns
-            default=['project.projectName','task.taskName','projectPhase.phaseName','user.firstName','user.lastName','user.emailId','date','minutes','createdAt','billable']
+            default=df_report.columns.tolist()  # By default, select all columns
+            #default=['project.projectName','task.taskName','projectPhase.phaseName','user.firstName','user.lastName','user.emailId','date','minutes','createdAt','billable']
         )
 
         df_report['createdAt'] = pd.to_datetime(df_report['createdAt'], unit='ms').dt.strftime('%Y-%m-%d')
