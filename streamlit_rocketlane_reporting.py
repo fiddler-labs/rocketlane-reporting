@@ -13,10 +13,14 @@ HEADERS = {
     "api-key": RL_API_KEY
 }
 
+st.set_page_config(page_title="Fiddler RocketLane Time Reporting",layout='wide')
+
 # Parse URL query parameters to determine which "page" to render
-query_params = st.experimental_get_query_params()
+query_params = st.query_params()
 page = query_params.get("page", ["main"])[0]
 project_id = query_params.get("project_id", [""])[0]
+
+
 
 # Convenience function to call Rocketlane API and return a dataframe
 def call_rl_api(uri) -> pd.DataFrame:
@@ -72,7 +76,7 @@ def render_html_table(df, page):
     html_table = df.to_html(escape=False, index=False)
     return html_table + css
 
-st.set_page_config(page_title="Fiddler RocketLane Time Reporting",layout='wide')
+
 st.markdown("""
     <style>
     .main {
