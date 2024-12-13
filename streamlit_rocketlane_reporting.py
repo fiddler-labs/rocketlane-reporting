@@ -13,14 +13,25 @@ HEADERS = {
     "api-key": RL_API_KEY
 }
 
-st.set_page_config(page_title="Fiddler RocketLane Time Reporting",layout='wide')
 
 # Parse URL query parameters to determine which "page" to render
-query_params = st.query_params()
-page = query_params.get("page", ["main"])[0]
-project_id = query_params.get("project_id", [""])[0]
+# query_params = st.query_params()
+# page = query_params.get("page", ["main"])[0]
+# project_id = query_params.get("project_id", [""])[0]
 
+page= ''
+project_id = ''
 
+if 'page' in st.query_params:   
+    page = st.query_params['page']
+
+if 'project_id' in st.query_params:
+    project_id = st.query_params['project_id']
+
+print('page: ' + page)
+print('project_id: ' + str(project_id))
+
+st.set_page_config(page_title="Fiddler RocketLane Time Reporting",layout='wide')
 
 # Convenience function to call Rocketlane API and return a dataframe
 def call_rl_api(uri) -> pd.DataFrame:
@@ -90,7 +101,7 @@ st.markdown("""
 
 
 # Conditional rendering based on the page parameter
-if page == "billable_report" and project_id:
+if page == "billable_report" and project_id != '':
 
     # Get the current date and time
     now = datetime.now()
