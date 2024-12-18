@@ -17,9 +17,11 @@ authenticator = stauth.Authenticate(
     user_config['cookie']['key'],
     user_config['cookie']['expiry_days']
 )
+print("streamlit version: ", st.__version__)
+print("streamlit auth version: ", stauth.__version__)
 
 # Render the login widget by providing a name for the form and its location (i.e., sidebar or main)
-name, authentication_status, username = authenticator.login("login", "main")
+name, authentication_status, username = authenticator.login("Login", "main")
 
 print("authentication_status: " + str(authentication_status))
 
