@@ -21,7 +21,7 @@ print("streamlit version: ", st.__version__)
 #print("streamlit auth version: ", stauth.__version__)
 
 # Render the login widget by providing a name for the form and its location (i.e., sidebar or main)
-name, authentication_status, username = authenticator.login("Login",location='main')
+name, authentication_status, username = authenticator.login(form_name="Login",location='main')
 
 print("authentication_status: " + str(authentication_status))
 
