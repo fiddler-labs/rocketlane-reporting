@@ -1,0 +1,17 @@
+credentials:
+  usernames:
+    admin:
+      email: admin@fiddler.ai
+      name: Administrator
+      password: $2b$12$lR4XpwZYIwOVrygABAIME..sx44sCFlwAylYjSZk7SiOyY68GjWhu # hashed for security purposes using stauth.Hasher(['original_password']).generate()
+    danny:
+      email: danny@fiddler.ai
+      name: Danny Brock
+      password: $2b$12$lR4XpwZYIwOVrygABAIME..sx44sCFlwAylYjSZk7SiOyY68GjWhu # hashed for security purposes using stauth.Hasher(['original_password']).generate()
+cookie:
+  expiry_days: 30
+  key: fiddler_signature_key # Must be string
+  name: fiddler_streamlit_auth
+preauthorized:
+  emails:
+  - danny@fiddler.ai
