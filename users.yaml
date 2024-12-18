@@ -12,6 +12,3 @@ cookie:
   expiry_days: 30
   key: fiddler_signature_key # Must be string
   name: fiddler_streamlit_auth
-preauthorized:
-  emails:
-  - danny@fiddler.ai

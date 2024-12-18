@@ -15,8 +15,7 @@ authenticator = stauth.Authenticate(
     user_config['credentials'],
     user_config['cookie']['name'],
     user_config['cookie']['key'],
-    user_config['cookie']['expiry_days'],
-    user_config['preauthorized']
+    user_config['cookie']['expiry_days']
 )
 
 # Render the login widget by providing a name for the form and its location (i.e., sidebar or main)
