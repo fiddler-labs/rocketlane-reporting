@@ -19,7 +19,7 @@ authenticator = stauth.Authenticate(
 )
 
 # Render the login widget by providing a name for the form and its location (i.e., sidebar or main)
-name, authentication_status, username = authenticator.login('Login', 'main')
+name, authentication_status, username = authenticator.login("login", "main")
 
 print("authentication_status: " + str(authentication_status))
 
